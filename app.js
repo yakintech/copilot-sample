@@ -3,11 +3,12 @@ const express = require('express');
 const mongoose = require('mongoose');
 const helmet = require('helmet'); 
 const rateLimit = require('express-rate-limit'); 
+const authRoutes = require('./routes/authRoutes');
+const authMiddleware = require('./middleware/authMiddleware');
 const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(helmet());
-
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, 
@@ -15,6 +16,7 @@ const limiter = rateLimit({
 });
 app.use(limiter); 
 
+app.use(express.json());
 
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => {
@@ -24,13 +26,12 @@ mongoose.connect(process.env.MONGODB_URI)
     console.error('MongoDB bağlantı hatası:', err);
   });
 
+// Kimlik doğrulama rotaları
+app.use('/api/auth', authRoutes);
 
-app.use(express.json());
-
-
-app.use('/api', require('./routes/productRoutes'));
-app.use('/api', require('./routes/categoryRoutes'));
-
+// Korunan rotalar (örnek)
+app.use('/api/products', authMiddleware, require('./routes/productRoutes'));
+app.use('/api/categories', authMiddleware, require('./routes/categoryRoutes'));
 
 app.listen(port, () => {
   console.log(`Sunucu http://localhost:${port} adresinde çalışıyor`);

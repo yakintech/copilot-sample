@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Detail</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="language-switcher">
+        <button onclick="setLanguage('en')">English</button>
+        <button onclick="setLanguage('tr')">Türkçe</button>
+    </div>
+    <div class="product-detail-container">
+        <h1 id="productName"></h1>
+        <img id="productImage" alt="Product Image">
+        <p id="productDescription"></p>
+        <p id="productPriceLabel">Price: $<span id="productPrice"></span></p>
+        <p id="productCategoryLabel">Category: <span id="productCategory"></span></p>
+        <p id="productStockLabel">Stock: <span id="productStock"></span></p>
+    </div>
+    <script>
+        const translations = {
+            en: {
+                price: "Price",
+                category: "Category",
+                stock: "Stock"
+            },
+            tr: {
+                price: "Fiyat",
+                category: "Kategori",
+                stock: "Stok"
+            }
+        };
+
+        function setLanguage(lang) {
+            document.getElementById('productPriceLabel').firstChild.textContent = translations[lang].price + ": $";
+            document.getElementById('productCategoryLabel').firstChild.textContent = translations[lang].category + ": ";
+            document.getElementById('productStockLabel').firstChild.textContent = translations[lang].stock + ": ";
+        }
+
+        const productId = new URLSearchParams(window.location.search).get('id');
+        fetch(`http://localhost:3000/api/products/${productId}`, {
+            method: 'GET',
+            headers: {
+                authorization: `Bearer ${localStorage.getItem('token')}`
+            }
+        })
+        .then(response => response.json())
+        .then(product => {
+            document.getElementById('productName').textContent = product.name;
+            document.getElementById('productImage').src = product.images[0];
+            document.getElementById('productDescription').textContent = product.description;
+            document.getElementById('productPrice').textContent = product.price;
+            document.getElementById('productCategory').textContent = product.category.name;
+            document.getElementById('productStock').textContent = product.stock;
+        })
+        .catch(error => {
+            console.error('Error fetching product details:', error);
+        });
+
+        // Default language
+        setLanguage('en');
+    </script>
+</body>
+</html>

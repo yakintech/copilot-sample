@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="language-switcher">
+        <button onclick="setLanguage('en')">English</button>
+        <button onclick="setLanguage('tr')">Türkçe</button>
+    </div>
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Search products...">
+        <input type="number" id="minPrice" placeholder="Min price" min="0">
+        <input type="number" id="maxPrice" placeholder="Max price" min="0">
+    </div>
+    <div class="products-container" id="productsContainer"></div>
+    <script>
+        const translations = {
+            en: {
+                price: "Price"
+            },
+            tr: {
+                price: "Fiyat"
+            }
+        };
+
+        let currentLanguage = 'en';
+        let productsData = [];
+
+        function setLanguage(lang) {
+            currentLanguage = lang;
+            displayProducts(productsData);
+        }
+
+        const productsContainer = document.getElementById('productsContainer');
+        const searchInput = document.getElementById('searchInput');
+        const minPriceInput = document.getElementById('minPrice');
+        const maxPriceInput = document.getElementById('maxPrice');
+
+        fetch('http://localhost:3000/api/products', {
+            method: 'GET',
+            headers: {
+                authorization: `Bearer ${localStorage.getItem('token')}`
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            productsData = data;
+            displayProducts(data);
+
+            const filterProducts = () => {
+                const searchTerm = searchInput.value.toLowerCase();
+                const minPrice = parseFloat(minPriceInput.value) || 0;
+                const maxPrice = parseFloat(maxPriceInput.value) || Infinity;
+
+                const filteredProducts = data.filter(product => 
+                    (product.name.toLowerCase().includes(searchTerm) ||
+                    product.description.toLowerCase().includes(searchTerm) ||
+                    product.category.name.toLowerCase().includes(searchTerm)) &&
+                    product.price >= minPrice &&
+                    product.price <= maxPrice
+                );
+                displayProducts(filteredProducts);
+            };
+
+            searchInput.addEventListener('input', filterProducts);
+            minPriceInput.addEventListener('input', filterProducts);
+            maxPriceInput.addEventListener('input', filterProducts);
+        });
+
+        function displayProducts(products) {
+            productsContainer.innerHTML = '';
+            products.forEach(product => {
+                const productBox = document.createElement('div');
+                productBox.classList.add('product-box');
+                productBox.innerHTML = `
+                    <img src="${product.images[0]}" alt="${product.name}">
+                    <h2><a href="productDetail.html?id=${product._id}">${product.name}</a></h2>
+                    <p>${product.description}</p>
+                    <p class="product-price-label">${translations[currentLanguage].price}: $${product.price}</p>
+                `;
+                productsContainer.appendChild(productBox);
+            });
+        }
+
+        // Default language
+        setLanguage('en');
+    </script>
+</body>
+</html>

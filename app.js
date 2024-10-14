@@ -3,6 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const helmet = require('helmet'); 
 const rateLimit = require('express-rate-limit'); 
+const cors = require('cors'); // CORS paketini ekleyin
 const authRoutes = require('./routes/authRoutes');
 const authMiddleware = require('./middleware/authMiddleware');
 const app = express();
@@ -17,6 +18,9 @@ const limiter = rateLimit({
 app.use(limiter); 
 
 app.use(express.json());
+
+// CORS'u etkinleştirin
+app.use(cors());
 
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => {

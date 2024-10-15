@@ -1,5 +1,12 @@
 const Category = require('../models/Category');
 
+/**
+ * @function getCategories
+ * @description Retrieves all categories from the database.
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @returns {void}
+ */
 exports.getCategories = async (req, res) => {
     try {
         const categories = await Category.find().select('-__v');
@@ -9,6 +16,13 @@ exports.getCategories = async (req, res) => {
     }
 };
 
+/**
+ * @function createCategory
+ * @description Creates a new category in the database.
+ * @param {Object} req - Express request object containing the category data in the body.
+ * @param {Object} res - Express response object.
+ * @returns {void}
+ */
 exports.createCategory = async (req, res) => {
     const category = new Category(req.body);
     try {
@@ -19,6 +33,13 @@ exports.createCategory = async (req, res) => {
     }
 };
 
+/**
+ * @function getCategory
+ * @description Retrieves a single category by ID from the database.
+ * @param {Object} req - Express request object containing the category ID in the URL parameters.
+ * @param {Object} res - Express response object.
+ * @returns {void}
+ */
 exports.getCategory = async (req, res) => {
     try {
         const category = await Category.findById(req.params.id).select('-__v');
@@ -31,6 +52,13 @@ exports.getCategory = async (req, res) => {
     }
 };
 
+/**
+ * @function updateCategory
+ * @description Updates an existing category in the database.
+ * @param {Object} req - Express request object containing the category ID in the URL parameters and the updated data in the body.
+ * @param {Object} res - Express response object.
+ * @returns {void}
+ */
 exports.updateCategory = async (req, res) => {
     try {
         const category = await Category.findById(req.params.id);
@@ -45,6 +73,13 @@ exports.updateCategory = async (req, res) => {
     }
 };
 
+/**
+ * @function deleteCategory
+ * @description Deletes a category from the database.
+ * @param {Object} req - Express request object containing the category ID in the URL parameters.
+ * @param {Object} res - Express response object.
+ * @returns {void}
+ */
 exports.deleteCategory = async (req, res) => {
     try {
         const category = await Category.findById(req.params.id);
@@ -57,3 +92,4 @@ exports.deleteCategory = async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 };
+
